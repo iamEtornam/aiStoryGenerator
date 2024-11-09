@@ -1,4 +1,5 @@
 import 'package:ai_story_generator/home.dart';
+import 'package:ai_story_generator/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svprogresshud/flutter_svprogresshud.dart';
@@ -19,81 +20,90 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(32.0),
-        child: Form(
-          key: _formKey,
-          child: AutofillGroup(
-            child: ListView(
-              children: [
-                SizedBox(height: 56.0),
-                FlutterLogo(size: 100.0),
-                SizedBox(height: 56.0),
-                TextFormField(
-                  controller: _emailController,
-                  autofillHints: [AutofillHints.email],
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
+      body: Form(
+        key: _formKey,
+        child: AutofillGroup(
+          child: ListView(
+            padding: EdgeInsets.all(32.0),
+            children: [
+              SizedBox(height: 56.0),
+              FlutterLogo(size: 100.0),
+              SizedBox(height: 56.0),
+              TextFormField(
+                controller: _emailController,
+                autofillHints: [AutofillHints.email],
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _passwordController,
-                  autofillHints: [AutofillHints.password],
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                controller: _passwordController,
+                autofillHints: [AutofillHints.password],
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 24.0),
-                TextButton(
-                    style: TextButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        )),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        await signinWithEmail(
-                            _emailController.text, _passwordController.text);
-                      }
-                    },
-                    child: SizedBox(
-                        width: double.infinity,
-                        child: Center(
-                            child: Text('Login',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ))))),
-                SizedBox(height: 15.0),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 24.0),
+              TextButton(
+                  style: TextButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       )),
-                  onPressed: () async => await signInWithGoogle(),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      await signinWithEmail(
+                          _emailController.text, _passwordController.text);
+                    }
+                  },
                   child: SizedBox(
                       width: double.infinity,
-                      child: Center(child: Text('Continue with Google'))),
+                      child: Center(
+                          child: Text('Login',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ))))),
+              SizedBox(height: 15.0),
+              Align(
+                alignment: Alignment.centerRight,  
+                child: TextButton(
+                  child: Text('Don\'t have an account? Sign up'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => Register()));
+                  },
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: 15.0),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    )),
+                onPressed: () async => await signInWithGoogle(),
+                child: SizedBox(
+                    width: double.infinity,
+                    child: Center(child: Text('Continue with Google'))),
+              ),
+            ],
           ),
         ),
       ),
