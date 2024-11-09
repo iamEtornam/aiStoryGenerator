@@ -33,8 +33,8 @@ Next, we'll showcase the development process of a user-centric mobile applicatio
 </br>
 <tr>
     <td><img align="left" src="https://raw.githubusercontent.com/iamEtornam/aiStoryGenerator/main/screenshots/art_5.png" width="200" height="400"/></td>
+       <td><p></p></td>
 </tr>
-</br>
 </p>
 </br>
 
