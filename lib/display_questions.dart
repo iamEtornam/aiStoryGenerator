@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
 import 'package:ai_story_generator/display_story.dart';
 import 'package:ai_story_generator/loading.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 
 class DisplayQuestions extends StatefulWidget {
   const DisplayQuestions(
@@ -23,7 +26,7 @@ class _DisplayQuestionsState extends State<DisplayQuestions> {
   int _timeLeft = 15;
   List<String> selectedChoices = [];
   bool allDone = false;
-  String? generatedStory;
+  Map<String, dynamic>? generatedStory;
   bool isGenerating = false;
 
   @override
@@ -65,23 +68,34 @@ class _DisplayQuestionsState extends State<DisplayQuestions> {
   }
 
   Future<void> generateStory(BuildContext context) async {
-    String prompt =
-        '''Write a creative and engaging story based on the user’s personality and preferences. The user has selected the following preferences: $selectedChoices. Using these choices as inspiration, craft a story that captures the essence of these preferences and what they reveal about the user.
-
-Begin with an interesting setting that reflects these choices and create a protagonist inspired by these traits. Develop a plot that explores themes or scenarios where these preferences play a key role, showing how they influence the protagonist’s decisions, relationships, and personal journey.
-
-Keep the tone [choose any: lighthearted, mysterious, adventurous, etc.], and aim for a story that feels meaningful or thought-provoking. Make sure the story has a clear beginning, middle, and end, leaving the user with a memorable impression.''';
+    setState(() {
+      isGenerating = true;
+    });
 
     try {
-      final model = GenerativeModel(
-          model: 'gemini-1.5-flash-latest',
-          apiKey: String.fromEnvironment('GOOGLE_API_KEY'));
-
-      final content = [Content.text(prompt)];
-      final response = await model.generateContent(content);
-      if (response.text != null) {
+      final body = {
+        "category": widget.quizType,
+        "selectedOptions": selectedChoices
+      };
+      final Uri url = Uri(
+        scheme: 'https',
+        host: 'ai-story-generator-webservice.onrender.com',
+        path: 'generateStoryFlow',
+      );
+      final response = await http.post(url,
+          body: jsonEncode(body),
+          encoding: Encoding.getByName('utf-8'),
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authentication":
+                "Bearer ${FirebaseAuth.instance.currentUser!.refreshToken}"
+          });
+log('Response status: ${response.body}');
+      if (response.statusCode == 200) {
+        final res = jsonDecode(response.body);
         setState(() {
-          generatedStory = response.text;
+          generatedStory = res;
           isGenerating = false;
         });
         Future.delayed(Duration(seconds: 1), () {
@@ -89,9 +103,18 @@ Keep the tone [choose any: lighthearted, mysterious, adventurous, etc.], and aim
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => DisplayStory(
                     story: generatedStory!,
-                    category: widget.quizType,
                   )));
         });
+      } else {
+        if (!context.mounted) return;
+        setState(() {
+          isGenerating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating story'),
+          ),
+        );
       }
     } catch (e) {
       setState(() {
@@ -187,7 +210,6 @@ Keep the tone [choose any: lighthearted, mysterious, adventurous, etc.], and aim
                                 .pushReplacement(MaterialPageRoute(
                                     builder: (context) => DisplayStory(
                                           story: generatedStory!,
-                                          category: widget.quizType,
                                         )));
                           },
                           child: Text('Generate Story',

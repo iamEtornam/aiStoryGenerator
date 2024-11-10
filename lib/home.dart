@@ -120,9 +120,7 @@ class Home extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => DisplayStory(
-                                          story: data[index].data()['story'],
-                                          category:
-                                              data[index].data()['category'],
+                                          story: data[index].data()['content'],
                                         ))),
                             title: Text(
                                 'Story on ${(data[index].data()['created_at'] as Timestamp).toDate().toString().substring(0, 10)}'));
