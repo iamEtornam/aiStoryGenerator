@@ -14,8 +14,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController =
+      TextEditingController(text: 'sunumacbright@gmail.com');
+  final _passwordController = TextEditingController(text: '1234567890');
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,7 @@ class _LoginState extends State<Login> {
         key: _formKey,
         child: AutofillGroup(
           child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.all(32.0),
             children: [
               SizedBox(height: 56.0),
@@ -81,7 +83,7 @@ class _LoginState extends State<Login> {
                               ))))),
               SizedBox(height: 15.0),
               Align(
-                alignment: Alignment.centerRight,  
+                alignment: Alignment.centerRight,
                 child: TextButton(
                   child: Text('Don\'t have an account? Sign up'),
                   onPressed: () {
@@ -138,6 +140,8 @@ class _LoginState extends State<Login> {
       final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null && mounted) {
+        await FirebaseAuth.instance.currentUser!
+            .updateDisplayName(userCredential.user!.displayName!);
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => Home()), (route) => false);
       } else {
@@ -180,7 +184,7 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       if (!mounted) return;
-
+print('$e');
       SVProgressHUD.dismiss();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
