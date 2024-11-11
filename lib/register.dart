@@ -121,6 +121,7 @@ class _RegisterState extends State<Register> {
         key: _formKey,
         child: AutofillGroup(
           child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.all(32.0),
             children: [
               SizedBox(height: 16.0),
